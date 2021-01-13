@@ -5,6 +5,20 @@ const deafultResult = document.querySelector('#default_result');
 form.addEventListener('input', function (e) {
   const searchTitle = document.querySelector('#search_title');
   if (!searchTitle.value) {
+    reset();
+    deafultResult.hidden = false;
+    if (document.querySelector('#display_empty') !== null) {
+      document.querySelector('#display_empty').remove();
+    }
+  }
+});
+
+window.addEventListener('pageshow', function () {
+  const searchTitle = document.querySelector('#search_title');
+  if (searchTitle.value) {
+    fetchData(searchTitle.value);
+    console.log('pageshow');
+  } else {
     deafultResult.hidden = false;
     if (document.querySelector('#display_empty') !== null) {
       document.querySelector('#display_empty').remove();
@@ -24,32 +38,37 @@ form.addEventListener('submit', async function (e) {
     if (results.length > 0) {
       reset();
     }
-    fetchData(searchTitle);
+    fetchData(searchTitle.value);
   }
 });
 
-const fetchData = async (searchTitle) => {
+const fetchData = async (data) => {
   try {
-    const config = { params: { q: searchTitle.value } };
+    const config = { params: { q: data } };
     const req = await axios.get('http://api.tvmaze.com/search/shows', config);
     if (req.data.length > 0) {
       newResult(req.data);
     } else {
-      emptyResult(searchTitle.value);
+      emptyResult(data);
     }
   } catch (e) {
-    emptyResult(searchTitle.value);
+    emptyResult(data);
   }
 };
 
 const emptyResult = (data) => {
-  const container = document.querySelector('.container-fluid');
-  const displayError = document.createElement('div');
-  displayError.classList.add('h3');
-  displayError.classList.add('text-center');
-  displayError.textContent = `Result for ${data} not found!`;
-  displayError.id = 'display_empty';
-  return container.append(displayError);
+  if (
+    document.querySelector('#display_empty') === null &&
+    deafultResult.hidden
+  ) {
+    const container = document.querySelector('.container-fluid');
+    const displayError = document.createElement('div');
+    displayError.classList.add('h3');
+    displayError.classList.add('text-center');
+    displayError.textContent = `Result for ${data} not found!`;
+    displayError.id = 'display_empty';
+    return container.append(displayError);
+  }
 };
 
 const newResult = (reponse) => {
