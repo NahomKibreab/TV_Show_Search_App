@@ -4,23 +4,30 @@ const body = document.querySelector('.col');
 form.addEventListener('submit', async function (e) {
   e.preventDefault();
   const searchTitle = document.querySelector('#search_title');
+  const results = document.querySelectorAll('.result');
   if (searchTitle) {
     const deafultResult = document.querySelector('#default_result');
-    deafultResult.remove();
+    if (deafultResult) {
+      deafultResult.remove();
+    }
+
+    if (results.length > 0) {
+      reset();
+    }
+
+    if (document.querySelector('#display_empty') !== null) {
+      document.querySelector('#display_empty').remove();
+    }
   }
   try {
     const config = { params: { q: searchTitle.value } };
     const req = await axios.get('http://api.tvmaze.com/search/shows', config);
     if (req.data.length > 0) {
-      console.log('Value found');
-      console.log(req.data);
       newResult(req.data);
     } else {
-      console.log('no value found');
       emptyResult(searchTitle.value);
     }
   } catch (e) {
-    console.log('Error Has occur', e);
     emptyResult(searchTitle.value);
   }
 });
@@ -31,6 +38,7 @@ const emptyResult = (data) => {
   displayError.classList.add('h3');
   displayError.classList.add('text-center');
   displayError.textContent = `Result for ${data} not found!`;
+  displayError.id = 'display_empty';
   return container.append(displayError);
 };
 
@@ -44,15 +52,17 @@ const displayResult = (show) => {
   const card = document.createElement('div');
   card.classList.add('card');
   card.classList.add('mx-2');
+  card.classList.add('result');
   card.style.width = '18rem';
 
   const image = document.createElement('img');
   image.classList.add('card-img-top');
   image.src =
     show.image === null
-      ? `https://wiki.tripwireinteractive.com/images/4/47/Placeholder.png`
+      ? `https://aosa.org/wp-content/uploads/2019/04/image-placeholder-350x350.png`
       : `${show.image.medium}`;
   image.alt = `Image for ${show.name}`;
+  image.style.minHeight = '295px';
   card.append(image);
 
   const cardBody = document.createElement('div');
@@ -80,4 +90,11 @@ const displayResult = (show) => {
   card.append(cardBody);
 
   body.append(card);
+};
+
+const reset = () => {
+  const results = document.querySelectorAll('.result');
+  for (let result of results) {
+    body.removeChild(result);
+  }
 };
