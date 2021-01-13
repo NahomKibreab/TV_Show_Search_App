@@ -17,6 +17,7 @@ window.addEventListener('pageshow', function () {
   const searchTitle = document.querySelector('#search_title');
   if (searchTitle.value) {
     fetchData(searchTitle.value);
+    deafultResult.hidden = true;
     console.log('pageshow');
   } else {
     deafultResult.hidden = false;
