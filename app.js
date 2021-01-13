@@ -11,27 +11,36 @@ form.addEventListener('submit', async function (e) {
   try {
     const config = { params: { q: searchTitle.value } };
     const req = await axios.get('http://api.tvmaze.com/search/shows', config);
-    newResult(req.data);
+    if (req.data.length > 0) {
+      console.log('Value found');
+      console.log(req.data);
+      newResult(req.data);
+    } else {
+      console.log('no value found');
+      emptyResult(searchTitle.value);
+    }
   } catch (e) {
-    console.log('Error Has occur');
+    console.log('Error Has occur', e);
     emptyResult(searchTitle.value);
   }
 });
 
 const emptyResult = (data) => {
+  const container = document.querySelector('.container-fluid');
   const displayError = document.createElement('div');
   displayError.classList.add('h3');
+  displayError.classList.add('text-center');
   displayError.textContent = `Result for ${data} not found!`;
-  return body.append(displayError);
+  return container.append(displayError);
 };
 
 const newResult = (reponse) => {
   for (let data of reponse) {
-    console.log(data.show);
+    displayResult(data.show);
   }
 };
 
-const displayResult = () => {
+const displayResult = (show) => {
   const card = document.createElement('div');
   card.classList.add('card');
   card.classList.add('mx-2');
@@ -39,8 +48,11 @@ const displayResult = () => {
 
   const image = document.createElement('img');
   image.classList.add('card-img-top');
-  image.src = `http://static.tvmaze.com/uploads/images/medium_portrait/31/78286.jpg`;
-  image.alt = `sample image`;
+  image.src =
+    show.image === null
+      ? `https://wiki.tripwireinteractive.com/images/4/47/Placeholder.png`
+      : `${show.image.medium}`;
+  image.alt = `Image for ${show.name}`;
   card.append(image);
 
   const cardBody = document.createElement('div');
@@ -48,19 +60,20 @@ const displayResult = () => {
 
   const h5 = document.createElement('h5');
   h5.classList.add('card-title');
-  h5.textContent = 'Girls';
+  h5.textContent = `${show.name}`;
   cardBody.append(h5);
 
   const p = document.createElement('p');
   p.classList.add('card-text');
-  p.innerHTML =
-    '<p>This Emmy winning series is a comic look at the assorted humiliations and rare triumphs of a group of girls in their 20s.</p>';
+  p.innerHTML = !show.summary
+    ? `No Summary found...`
+    : `${show.summary.slice(0, 200)}...`;
   cardBody.append(p);
 
   const a = document.createElement('a');
   a.classList.add('btn');
   a.classList.add('btn-primary');
-  a.href = 'http://www.tvmaze.com/shows/139/girls';
+  a.href = `${show.url}`;
   a.textContent = `More Info`;
   cardBody.append(a);
 
