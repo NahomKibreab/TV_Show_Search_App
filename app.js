@@ -1,24 +1,34 @@
 const form = document.querySelector('form');
 const body = document.querySelector('.col');
+const deafultResult = document.querySelector('#default_result');
+
+form.addEventListener('input', function (e) {
+  const searchTitle = document.querySelector('#search_title');
+  if (!searchTitle.value) {
+    deafultResult.hidden = false;
+    if (document.querySelector('#display_empty') !== null) {
+      document.querySelector('#display_empty').remove();
+    }
+  }
+});
 
 form.addEventListener('submit', async function (e) {
   e.preventDefault();
   const searchTitle = document.querySelector('#search_title');
   const results = document.querySelectorAll('.result');
   if (searchTitle) {
-    const deafultResult = document.querySelector('#default_result');
-    if (deafultResult) {
-      deafultResult.remove();
-    }
+    deafultResult.hidden = true;
+
+    console.dir(deafultResult);
 
     if (results.length > 0) {
       reset();
     }
-
-    if (document.querySelector('#display_empty') !== null) {
-      document.querySelector('#display_empty').remove();
-    }
+    fetchData(searchTitle);
   }
+});
+
+const fetchData = async (searchTitle) => {
   try {
     const config = { params: { q: searchTitle.value } };
     const req = await axios.get('http://api.tvmaze.com/search/shows', config);
@@ -30,7 +40,7 @@ form.addEventListener('submit', async function (e) {
   } catch (e) {
     emptyResult(searchTitle.value);
   }
-});
+};
 
 const emptyResult = (data) => {
   const container = document.querySelector('.container-fluid');
@@ -51,7 +61,7 @@ const newResult = (reponse) => {
 const displayResult = (show) => {
   const card = document.createElement('div');
   card.classList.add('card');
-  card.classList.add('mx-2');
+  card.classList.add('m-2');
   card.classList.add('result');
   card.style.width = '18rem';
 
